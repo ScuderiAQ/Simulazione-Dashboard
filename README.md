@@ -53,6 +53,8 @@ Per far compilare il progetto su Wokwi senza errori di overflow della memoria Fl
 
 ## 🛠️ Come Simulare su Wokwi Online
 
+Link diretto al progetto: https://wokwi.com/projects/479505957334903809
+
 1. Apri il simulatore STM32 Nucleo su Wokwi:
    👉 **[https://wokwi.com/projects/new/st-nucleo-c031c6](https://wokwi.com/projects/new/st-nucleo-c031c6)**
 2. Assicurati che **`libraries.txt`** contenga solo:
