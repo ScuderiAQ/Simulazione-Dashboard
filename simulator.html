@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formula SAE Dashboard - Wokwi & Web Simulator</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --accent: #238636;
+      --accent-hover: #2ea043;
+      --text: #c9d1d9;
+      --text-bright: #ffffff;
+      --red: #da3633;
+      --green: #238636;
+      --blue: #1f6feb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      color: var(--text-bright);
+      font-size: 26px;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .badge {
+      background: #e5534b;
+      color: white;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    header p {
+      color: #8b949e;
+      font-size: 14px;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 28px;
+      max-width: 1250px;
+      width: 100%;
+    }
+
+    /* Steering Wheel Hardware Frame */
+    .dashboard-hardware {
+      background: linear-gradient(145deg, #18191c, #0f1012);
+      border: 3px solid #2b2e35;
+      border-radius: 24px;
+      padding: 24px 28px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .fsae-logo {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #6e7681;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    /* Rev Light Strip (24 LEDs) */
+    .led-strip-container {
+      display: flex;
+      gap: 7px;
+      background: #090a0c;
+      padding: 8px 14px;
+      border-radius: 16px;
+      border: 1px solid #21262d;
+      margin-bottom: 16px;
+    }
+
+    .led {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #1c2026;
+      border: 1px solid #101216;
+      transition: background 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .led.green-active {
+      background: #00ff48;
+      box-shadow: 0 0 10px #00ff48, 0 0 20px #00ff4888;
+    }
+
+    .led.red-active {
+      background: #ff2222;
+      box-shadow: 0 0 10px #ff2222, 0 0 20px #ff222288;
+    }
+
+    .led.blue-active {
+      background: #0088ff;
+      box-shadow: 0 0 12px #0088ff, 0 0 24px #0088ffaa;
+    }
+
+    /* TFT Screen Frame */
+    .screen-bezel {
+      background: #000;
+      border: 4px solid #1f2329;
+      border-radius: 8px;
+      padding: 4px;
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+    }
+
+    #dashCanvas {
+      display: block;
+      background: #000;
+      image-rendering: pixelated;
+    }
+
+    /* Control Panel */
+    .control-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .panel-section-title {
+      color: var(--text-bright);
+      font-size: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #21262d;
+      color: var(--text-bright);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      background: #30363d;
+      border-color: #8b949e;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: #347d39;
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    button.active-mode {
+      background: #1f6feb;
+      border-color: #388bfd;
+      box-shadow: 0 0 10px rgba(31, 111, 235, 0.4);
+    }
+
+    button.danger {
+      background: #b62324;
+      border-color: #e5534b;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #8b949e;
+    }
+
+    .slider-label span {
+      color: var(--text-bright);
+      font-weight: 600;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #238636;
+      cursor: pointer;
+    }
+
+    .wokwi-guide-card {
+      max-width: 1250px;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .wokwi-guide-card h2 {
+      color: var(--text-bright);
+      font-size: 18px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .step-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .step-box h3 {
+      color: #58a6ff;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .step-box p, .step-box li {
+      font-size: 13px;
+      color: #8b949e;
+      line-height: 1.5;
+    }
+
+    .step-box code {
+      background: #161b22;
+      color: #79c0ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    a.external-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #238636;
+      color: white;
+      text-decoration: none;
+      padding: 9px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 10px;
+      transition: background 0.15s ease;
+    }
+
+    a.external-link:hover {
+      background: #2ea043;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Formula SAE Racing Dashboard <span class="badge">ESP32 + ILI9341</span></h1>
+    <p>Simulazione e testing del display per vettura Formula Student basato sulla bozza</p>
+  </header>
+
+  <div class="main-container">
+
+    <!-- Dashboard Hardware Box -->
+    <div class="dashboard-hardware">
+      <div class="fsae-logo">Formula Student Digital Dash &bull; Wokwi Target</div>
+      
+      <!-- 24-LED Shift Light Strip: 8 Green, 8 Red, 8 Blue -->
+      <div class="led-strip-container" id="shiftStrip">
+        <!-- Generated by JS -->
+      </div>
+
+      <!-- 320x240 ILI9341 Screen -->
+      <div class="screen-bezel">
+        <canvas id="dashCanvas" width="640" height="480" style="width: 512px; height: 384px;"></canvas>
+      </div>
+    </div>
+
+    <!-- Live Controls Panel -->
+    <div class="control-panel">
+      <div class="panel-section-title">
+        <span>Modalit&agrave; &amp; Controlli di Guida</span>
+        <span id="modeStatus" style="font-size: 12px; color: #58a6ff;">AUTO DEMO ATTIVA</span>
+      </div>
+
+      <div class="btn-group">
+        <button id="btnAutoToggle" class="primary active-mode" onclick="toggleAutoMode()">
+          &#9654; Auto Lap Sim
+        </button>
+        <button onclick="shiftGear(1)">&#9650; Shift UP</button>
+        <button onclick="shiftGear(-1)">&#9660; Shift DOWN</button>
+        <button onclick="setNeutral()">N (Neutral)</button>
+        <button onclick="refillAir()" style="background: #1f6feb; border-color: #388bfd;">&#9881; Ricarica Aria (50)</button>
+        <button onclick="resetToBozza()">Reset a Bozza</button>
+      </div>
+
+      <div class="panel-section-title">Regolazione Telemetria in Tempo Reale</div>
+
+      <div class="slider-row">
+        <div class="slider-label">Aria Compressa Cambio: <span id="valShifts" style="color: #58a6ff;">50 shifts</span></div>
+        <input type="range" id="sliderShifts" min="0" max="60" value="50" oninput="onManualShifts(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">RPM Motore: <span id="valRpm">5000 giri/m</span></div>
+        <input type="range" id="sliderRpm" min="0" max="13500" step="50" value="5000" oninput="onManualRpm(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Acceleratore (THR): <span id="valThr">45 %</span></div>
+        <input type="range" id="sliderThr" min="0" max="100" value="45" oninput="onManualThr(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Freno (BRK): <span id="valBrk">0 %</span></div>
+        <input type="range" id="sliderBrk" min="0" max="100" value="0" oninput="onManualBrk(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Velocit&agrave;: <span id="valSpd">30 km/h</span></div>
+        <input type="range" id="sliderSpd" min="0" max="160" value="30" oninput="onManualSpd(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Pressione Gomme: <span id="valTires">21.0 psi</span></div>
+        <input type="range" id="sliderTires" min="10" max="35" step="0.5" value="21" oninput="onManualTires(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Temperatura Acqua: <span id="valWater">104 &deg;C</span></div>
+        <input type="range" id="sliderWater" min="60" max="120" value="104" oninput="onManualWater(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Temperatura Olio: <span id="valOil">80 &deg;C</span></div>
+        <input type="range" id="sliderOil" min="50" max="130" value="80" oninput="onManualOil(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Batteria: <span id="valBat">13.3 V</span></div>
+        <input type="range" id="sliderBat" min="10.0" max="15.0" step="0.1" value="13.3" oninput="onManualBat(this.value)">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">Carburante: <span id="valFuel">13.0 l</span></div>
+        <input type="range" id="sliderFuel" min="0" max="15" step="0.1" value="13.0" oninput="onManualFuel(this.value)">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Wokwi Simulator Setup Guide -->
+  <div class="wokwi-guide-card">
+    <h2>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      Come Eseguire e Testare su Wokwi Online
+    </h2>
+    <p>I file di progetto completi per Wokwi (<code>sketch.ino</code>, <code>diagram.json</code>, <code>libraries.txt</code>, <code>wokwi.toml</code>) sono già stati salvati nella tua cartella locale.</p>
+    
+    <div class="steps-grid">
+      <div class="step-box">
+        <h3>1. Apri Wokwi ESP32</h3>
+        <p>Vai su Wokwi per aprire un nuovo template ESP32 con un solo click:</p>
+        <a class="external-link" href="https://wokwi.com/projects/new/esp32" target="_blank">
+          Apri Wokwi ESP32 &rarr;
+        </a>
+      </div>
+
+      <div class="step-box">
+        <h3>2. Incolla i File di Progetto</h3>
+        <p>Nel simulatore Wokwi:</p>
+        <ul style="padding-left: 18px; margin-top: 6px;">
+          <li>Incolla <code>sketch.ino</code> nel tab <strong>sketch.ino</strong></li>
+          <li>Incolla <code>diagram.json</code> nel tab <strong>diagram.json</strong></li>
+          <li>Aggiungi un nuovo file <code>libraries.txt</code> con le 3 librerie</li>
+        </ul>
+      </div>
+
+      <div class="step-box">
+        <h3>3. Premi "Start Simulation" (Play)</h3>
+        <p>Premi il pulsante verde di Play in Wokwi:</p>
+        <ul style="padding-left: 18px; margin-top: 6px;">
+          <li>La dashboard si avvia con l'esatta grafica della bozza</li>
+          <li>I 24 NeoPixel Shift Lights si accendono in tempo reale</li>
+          <li>Puoi premere i pulsanti SHIFT UP/DOWN o inviare comandi via Serial Monitor!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // TELEMETRY STATE (Matching bozza.jpeg by default)
+    // -------------------------------------------------------------
+    const state = {
+      gear: 2,
+      speed: 30,
+      rpm: 5000,
+      shifts: 50, // Initial pneumatic shifts (air capacity)
+      fuel: 13.0,
+      cm3: 38,
+      throttle: 45,
+      brake: 0,
+      waterTemp: 104,
+      oilTemp: 80,
+      battery: 13.3,
+      tirePress: [21.0, 21.0, 21.0, 21.0],
+      autoMode: true
+    };
+
+    // Initialize 24 Shift Light LEDs (8 Green, 8 Red, 8 Blue)
+    const stripContainer = document.getElementById('shiftStrip');
+    const leds = [];
+    for (let i = 0; i < 24; i++) {
+      const el = document.createElement('div');
+      el.className = 'led';
+      stripContainer.appendChild(el);
+      leds.push(el);
+    }
+
+    const canvas = document.getElementById('dashCanvas');
+    const ctx = canvas.getContext('2d');
+    // Virtual resolution is 320x240, scale 2x for Retina sharp rendering
+    const W = 320;
+    const H = 240;
+
+    // -------------------------------------------------------------
+    // RENDERING ENGINE (Exact match to Adafruit_ILI9341 display layout)
+    // -------------------------------------------------------------
+    function render() {
+      ctx.save();
+      ctx.scale(2, 2); // 640x480 canvas maps to 320x240 virtual pixels
+
+      // Background
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, W, H);
+
+      // Outer Border
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+
+      // Horizontal Separator 1 (Under Top Row)
+      ctx.beginPath();
+      ctx.moveTo(0, 44);
+      ctx.lineTo(W, 44);
+      ctx.stroke();
+
+      // Horizontal Separator 2 (Above Bottom Row)
+      ctx.beginPath();
+      ctx.moveTo(0, 178);
+      ctx.lineTo(W, 178);
+      ctx.stroke();
+
+      // Vertical Separators in Middle Row
+      ctx.beginPath();
+      ctx.moveTo(82, 44);
+      ctx.lineTo(82, 178);
+      ctx.moveTo(238, 44);
+      ctx.lineTo(238, 178);
+      ctx.stroke();
+
+      // =========================================================
+      // 1. TOP ROW: Fuel (Left) & cm³ (Right)
+      // =========================================================
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText(`${Math.round(state.fuel)} l`, 8, 24);
+
+      ctx.font = 'bold 15px monospace';
+      ctx.fillText('fuel', 8, 40);
+
+      // cm³ (Top Right)
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText(`${state.cm3} cm`, 204, 26);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText('3', 290, 17); // Superscript 3
+
+      // =========================================================
+      // 2. MIDDLE ROW - LEFT: 4 Tires with 21psi
+      // =========================================================
+      const tireColor = '#00ff48';
+      const tireFill = '#02330e';
+
+      function drawTire(x, y, label, isTop) {
+        // Label
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px monospace';
+        if (isTop) {
+          ctx.fillText(label, x - 2, y - 4);
+        } else {
+          ctx.fillText(label, x - 2, y + 48);
+        }
+
+        // Tire Rect
+        ctx.fillStyle = tireFill;
+        ctx.fillRect(x, y, 22, 38);
+        ctx.strokeStyle = tireColor;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, 22, 38);
+      }
+
+      drawTire(12, 62, `${Math.round(state.tirePress[0])}psi`, true);   // FL
+      drawTire(48, 62, `${Math.round(state.tirePress[1])}psi`, true);   // FR
+      drawTire(12, 114, `${Math.round(state.tirePress[2])}psi`, false); // RL
+      drawTire(48, 114, `${Math.round(state.tirePress[3])}psi`, false); // RR
+
+      // =========================================================
+      // 3. MIDDLE ROW - CENTER: Gear, Speed, RPM
+      // =========================================================
+      // Big Gear
+      ctx.font = 'bold 62px monospace';
+      ctx.textAlign = 'center';
+      if (state.gear === 0) {
+        ctx.fillStyle = '#00ff48';
+        ctx.fillText('N', 160, 106);
+      } else {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(state.gear, 160, 106);
+      }
+
+      // Speed
+      ctx.font = 'bold 17px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${state.speed} km/h`, 160, 134);
+
+      // RPM
+      ctx.font = 'bold 17px monospace';
+      if (state.rpm >= 11500) {
+        ctx.fillStyle = '#ff2222';
+      } else if (state.rpm >= 9000) {
+        ctx.fillStyle = '#ffff00';
+      } else {
+        ctx.fillStyle = '#ffffff';
+      }
+      ctx.fillText(`${state.rpm} giri/m`, 160, 160);
+
+      // =========================================================
+      // 4. MIDDLE ROW - RIGHT: Shifts Count (Pneumatic Reservoir)
+      // =========================================================
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 50px monospace';
+      if (state.shifts <= 0) {
+        ctx.fillStyle = '#ff2222'; // Out of air warning
+      } else if (state.shifts <= 10) {
+        ctx.fillStyle = '#ffff00'; // Low air warning
+      } else {
+        ctx.fillStyle = '#ffffff';
+      }
+      ctx.fillText(`${Math.max(0, state.shifts)}`, 279, 102);
+
+      ctx.font = 'bold 18px monospace';
+      ctx.fillText('shifts', 279, 134);
+
+      // =========================================================
+      // 5. BOTTOM ROW: Throttle & Brake Bars, Temps, Battery
+      // =========================================================
+      ctx.textAlign = 'left';
+
+      // Throttle Bar (Green)
+      const thrW = Math.round((Math.max(0, Math.min(100, state.throttle)) / 100) * 58);
+      ctx.strokeStyle = '#00ff48';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(8, 184, 62, 14);
+      ctx.fillStyle = '#00ff48';
+      ctx.fillRect(10, 186, thrW, 10);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('THR', 74, 196);
+
+      // Brake Bar (Red)
+      const brkW = Math.round((Math.max(0, Math.min(100, state.brake)) / 100) * 58);
+      ctx.strokeStyle = '#ff2222';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(8, 206, 62, 14);
+      ctx.fillStyle = '#ff2222';
+      ctx.fillRect(10, 208, brkW, 10);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('BRK', 74, 218);
+
+      // Water Temp
+      ctx.font = 'bold 16px monospace';
+      ctx.fillStyle = state.waterTemp >= 108 ? '#ff2222' : '#ffffff';
+      ctx.fillText(`${state.waterTemp}°`, 122, 198);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('water', 118, 222);
+
+      // Oil Temp
+      ctx.font = 'bold 16px monospace';
+      ctx.fillStyle = state.oilTemp >= 115 ? '#ff2222' : '#ffffff';
+      ctx.fillText(`${state.oilTemp}°`, 184, 198);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('oil', 184, 222);
+
+      // Battery
+      ctx.font = 'bold 16px monospace';
+      ctx.fillStyle = state.battery < 11.8 ? '#ff2222' : '#ffffff';
+      ctx.fillText(`${state.battery.toFixed(1)} V`, 236, 198);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('battery', 236, 222);
+
+      ctx.restore();
+
+      // =========================================================
+      // 6. UPDATE 24 SHIFT LIGHTS
+      // =========================================================
+      updateShiftLightsUI(state.rpm);
+    }
+
+    let flashTimer = 0;
+    let flashState = false;
+
+    function updateShiftLightsUI(rpm) {
+      const RPM_IDLE = 2500;
+      const RPM_REDLINE = 11500;
+      const RPM_LIMITER = 12000;
+
+      // Limiter Flash
+      if (rpm >= RPM_LIMITER) {
+        flashTimer++;
+        if (flashTimer % 4 === 0) flashState = !flashState;
+        for (let i = 0; i < 24; i++) {
+          leds[i].className = flashState ? 'led blue-active' : 'led';
+        }
+        return;
+      }
+
+      // Normal progressive LEDs
+      let activeCount = 0;
+      if (rpm > RPM_IDLE) {
+        activeCount = Math.round(((Math.min(rpm, RPM_REDLINE) - RPM_IDLE) / (RPM_REDLINE - RPM_IDLE)) * 24);
+      }
+
+      for (let i = 0; i < 24; i++) {
+        if (i < activeCount) {
+          if (i < 8) leds[i].className = 'led green-active';
+          else if (i < 16) leds[i].className = 'led red-active';
+          else leds[i].className = 'led blue-active';
+        } else {
+          leds[i].className = 'led';
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // AUTOMATIC RACE TELEMETRY LOOP
+    // -------------------------------------------------------------
+    let trackPhase = 0;
+    let lapTimer = 0;
+
+    function runAutoTelemetry() {
+      if (!state.autoMode) return;
+
+      const now = Date.now();
+      state.battery = 13.2 + 0.3 * Math.sin(now / 1500);
+      state.waterTemp = 104 + Math.round(1.5 * Math.sin(now / 8000));
+      state.oilTemp = 80 + Math.round(1.0 * Math.cos(now / 7000));
+
+      switch (trackPhase) {
+        case 0: // Gear 1 Acceleration
+          state.gear = 1;
+          state.throttle = 95;
+          state.brake = 0;
+          state.rpm += 120;
+          state.speed = Math.round(15 + ((state.rpm - 3000) / (11600 - 3000)) * 30);
+          if (state.rpm >= 11600) {
+            if (state.shifts > 0) {
+              state.gear = 2;
+              state.shifts--; // Pneumatic shift consumes air
+              state.rpm = 7200;
+              trackPhase = 1;
+            } else {
+              // Out of air! Pit stop refill after 3 seconds
+              if (!state.pitTimer) state.pitTimer = now;
+              if (now - state.pitTimer > 3000) {
+                state.shifts = 50;
+                state.pitTimer = null;
+              }
+            }
+          }
+          break;
+
+        case 1: // Gear 2 Acceleration
+          state.gear = 2;
+          state.throttle = 100;
+          state.brake = 0;
+          state.rpm += 90;
+          state.speed = Math.round(45 + ((state.rpm - 7200) / (11700 - 7200)) * 33);
+          if (state.rpm >= 11700) {
+            if (state.shifts > 0) {
+              state.gear = 3;
+              state.shifts--; // Pneumatic shift consumes air
+              state.rpm = 7800;
+              trackPhase = 2;
+            } else {
+              trackPhase = 3; // Force braking
+            }
+          }
+          break;
+
+        case 2: // Gear 3 Straightaway
+          state.gear = 3;
+          state.throttle = 100;
+          state.brake = 0;
+          state.rpm += 70;
+          state.speed = Math.round(78 + ((state.rpm - 7800) / (11800 - 7800)) * 27);
+          if (state.rpm >= 11800) {
+            lapTimer = now;
+            trackPhase = 3;
+          }
+          break;
+
+        case 3: // Hard Braking into Hairpin
+          state.throttle = 0;
+          state.brake = 85;
+          if (state.rpm > 4500) state.rpm -= 180;
+          if (state.speed > 28) state.speed -= 2;
+
+          if (state.speed < 55 && state.gear === 3) {
+            if (state.shifts > 0) {
+              state.gear = 2;
+              state.shifts--; // Pneumatic shift consumes air
+              state.rpm = 6500;
+            }
+          }
+          if (state.speed <= 30) {
+            state.brake = 0;
+            trackPhase = 4;
+            lapTimer = now;
+          }
+          break;
+
+        case 4: // Corner Apex & Exit (30 km/h, 5000 giri/m - like in bozza.jpeg)
+          state.gear = 2;
+          state.throttle = 45;
+          state.brake = 0;
+          state.speed = 30 + Math.round(3.0 * Math.sin(now / 400));
+          state.rpm = 5000 + Math.round(250.0 * Math.sin(now / 400));
+          if (now - lapTimer > 3500) {
+            trackPhase = 0; // restart lap
+          }
+          break;
+      }
+
+      syncSliderUI();
+    }
+
+    function syncSliderUI() {
+      document.getElementById('sliderShifts').value = state.shifts;
+      document.getElementById('valShifts').innerText = `${state.shifts} shifts`;
+      if (state.shifts <= 0) {
+        document.getElementById('valShifts').style.color = '#ff2222';
+      } else if (state.shifts <= 10) {
+        document.getElementById('valShifts').style.color = '#ffff00';
+      } else {
+        document.getElementById('valShifts').style.color = '#58a6ff';
+      }
+
+      document.getElementById('sliderRpm').value = state.rpm;
+      document.getElementById('valRpm').innerText = `${state.rpm} giri/m`;
+
+      document.getElementById('sliderThr').value = state.throttle;
+      document.getElementById('valThr').innerText = `${state.throttle} %`;
+
+      document.getElementById('sliderBrk').value = state.brake;
+      document.getElementById('valBrk').innerText = `${state.brake} %`;
+
+      document.getElementById('sliderSpd').value = state.speed;
+      document.getElementById('valSpd').innerText = `${state.speed} km/h`;
+
+      document.getElementById('sliderWater').value = state.waterTemp;
+      document.getElementById('valWater').innerText = `${state.waterTemp} °C`;
+
+      document.getElementById('sliderOil').value = state.oilTemp;
+      document.getElementById('valOil').innerText = `${state.oilTemp} °C`;
+
+      document.getElementById('sliderBat').value = state.battery;
+      document.getElementById('valBat').innerText = `${state.battery.toFixed(1)} V`;
+
+      document.getElementById('sliderFuel').value = state.fuel;
+      document.getElementById('valFuel').innerText = `${state.fuel.toFixed(1)} l`;
+    }
+
+    // -------------------------------------------------------------
+    // USER CONTROLS
+    // -------------------------------------------------------------
+    function toggleAutoMode() {
+      state.autoMode = !state.autoMode;
+      const btn = document.getElementById('btnAutoToggle');
+      const status = document.getElementById('modeStatus');
+      if (state.autoMode) {
+        btn.classList.add('active-mode');
+        status.innerText = 'AUTO DEMO ATTIVA';
+        status.style.color = '#58a6ff';
+      } else {
+        btn.classList.remove('active-mode');
+        status.innerText = 'CONTROLLO MANUALE';
+        status.style.color = '#f0883e';
+      }
+    }
+
+    function shiftGear(delta) {
+      state.autoMode = false;
+      document.getElementById('btnAutoToggle').classList.remove('active-mode');
+      document.getElementById('modeStatus').innerText = 'CONTROLLO MANUALE';
+
+      if (state.shifts <= 0) {
+        alert("ATTENZIONE: Bombola aria compressa esaurita (0 shifts)! Ricarica l'aria per cambiare marcia.");
+        return;
+      }
+
+      const nextGear = Math.max(0, Math.min(6, state.gear + delta));
+      if (nextGear !== state.gear) {
+        state.gear = nextGear;
+        state.shifts--; // Consume pneumatic air shift
+      }
+      syncSliderUI();
+      render();
+    }
+
+    function refillAir() {
+      state.shifts = 50;
+      syncSliderUI();
+      render();
+    }
+
+    function onManualShifts(val) {
+      state.shifts = parseInt(val);
+      syncSliderUI();
+      render();
+    }
+
+    function setNeutral() {
+      state.autoMode = false;
+      document.getElementById('btnAutoToggle').classList.remove('active-mode');
+      document.getElementById('modeStatus').innerText = 'CONTROLLO MANUALE';
+      state.gear = 0;
+      state.speed = 0;
+      render();
+    }
+
+    function resetToBozza() {
+      state.gear = 2;
+      state.speed = 30;
+      state.rpm = 5000;
+      state.shifts = 35;
+      state.fuel = 13.0;
+      state.cm3 = 38;
+      state.throttle = 45;
+      state.brake = 0;
+      state.waterTemp = 104;
+      state.oilTemp = 80;
+      state.battery = 13.3;
+      for (let i = 0; i < 4; i++) state.tirePress[i] = 21.0;
+      syncSliderUI();
+      render();
+    }
+
+    function onManualRpm(val) {
+      state.autoMode = false;
+      document.getElementById('btnAutoToggle').classList.remove('active-mode');
+      state.rpm = parseInt(val);
+      document.getElementById('valRpm').innerText = `${state.rpm} giri/m`;
+      render();
+    }
+
+    function onManualThr(val) {
+      state.autoMode = false;
+      document.getElementById('btnAutoToggle').classList.remove('active-mode');
+      state.throttle = parseInt(val);
+      document.getElementById('valThr').innerText = `${state.throttle} %`;
+      render();
+    }
+
+    function onManualBrk(val) {
+      state.autoMode = false;
+      document.getElementById('btnAutoToggle').classList.remove('active-mode');
+      state.brake = parseInt(val);
+      document.getElementById('valBrk').innerText = `${state.brake} %`;
+      render();
+    }
+
+    function onManualSpd(val) {
+      state.autoMode = false;
+      document.getElementById('btnAutoToggle').classList.remove('active-mode');
+      state.speed = parseInt(val);
+      document.getElementById('valSpd').innerText = `${state.speed} km/h`;
+      render();
+    }
+
+    function onManualTires(val) {
+      const p = parseFloat(val);
+      for (let i = 0; i < 4; i++) state.tirePress[i] = p;
+      document.getElementById('valTires').innerText = `${p.toFixed(1)} psi`;
+      render();
+    }
+
+    function onManualWater(val) {
+      state.waterTemp = parseInt(val);
+      document.getElementById('valWater').innerText = `${state.waterTemp} °C`;
+      render();
+    }
+
+    function onManualOil(val) {
+      state.oilTemp = parseInt(val);
+      document.getElementById('valOil').innerText = `${state.oilTemp} °C`;
+      render();
+    }
+
+    function onManualBat(val) {
+      state.battery = parseFloat(val);
+      document.getElementById('valBat').innerText = `${state.battery.toFixed(1)} V`;
+      render();
+    }
+
+    function onManualFuel(val) {
+      state.fuel = parseFloat(val);
+      document.getElementById('valFuel').innerText = `${state.fuel.toFixed(1)} l`;
+      render();
+    }
+
+    // Animation Loop
+    setInterval(() => {
+      runAutoTelemetry();
+      render();
+    }, 35);
+
+    // Initial draw
+    render();
+  </script>
+</body>
+</html>
