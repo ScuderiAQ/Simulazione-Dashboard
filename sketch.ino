@@ -127,15 +127,20 @@ void setup() {
   strip.show();
 
   // Initialize TFT
+  Serial.println(">> Initializing ILI9341 display via SPI...");
   tft.begin();
+  Serial.println(">> ILI9341 begin() OK!");
   tft.setRotation(1); // Landscape 320x240
   tft.fillScreen(COLOR_BG);
+  Serial.println(">> Screen cleared to BLACK");
 
   // Initialize Data
   initDashboardData();
 
   // Draw full static layout
+  Serial.println(">> Drawing Static Dashboard UI...");
   drawStaticUI();
+  Serial.println(">> Static UI Draw Complete!");
 
   // Force first full telemetry render
   prevTelemetry = currentTelemetry;

@@ -15,8 +15,7 @@
       "id": "lcd1",
       "top": 50,
       "left": 160,
-      "rotate": 90,
-      "attrs": {}
+      "attrs": { "rotation": "270" }
     },
     {
       "type": "wokwi-led-strip",
@@ -57,25 +56,25 @@
   "connections": [
     [ "esp:3V3", "lcd1:VCC", "red", [ "v0" ] ],
     [ "esp:GND.1", "lcd1:GND", "black", [ "v0" ] ],
-    [ "esp:D15", "lcd1:CS", "yellow", [ "h0" ] ],
-    [ "esp:D4", "lcd1:RESET", "gray", [ "h0" ] ],
-    [ "esp:D2", "lcd1:D/C", "orange", [ "h0" ] ],
-    [ "esp:D23", "lcd1:MOSI", "blue", [ "h0" ] ],
-    [ "esp:D18", "lcd1:SCK", "green", [ "h0" ] ],
+    [ "esp:15", "lcd1:CS", "yellow", [ "h0" ] ],
+    [ "esp:4", "lcd1:RST", "gray", [ "h0" ] ],
+    [ "esp:2", "lcd1:D/C", "orange", [ "h0" ] ],
+    [ "esp:23", "lcd1:MOSI", "blue", [ "h0" ] ],
+    [ "esp:18", "lcd1:SCK", "green", [ "h0" ] ],
     [ "esp:3V3", "lcd1:LED", "red", [ "v0" ] ],
-    [ "esp:D19", "lcd1:MISO", "purple", [ "h0" ] ],
+    [ "esp:19", "lcd1:MISO", "purple", [ "h0" ] ],
     [ "esp:GND.1", "strip1:VSS", "black", [ "v0" ] ],
     [ "esp:5V", "strip1:VDD", "red", [ "v0" ] ],
-    [ "esp:D5", "strip1:DIN", "green", [ "v0" ] ],
-    [ "btn_up:1.l", "esp:D12", "green", [ "v0" ] ],
+    [ "esp:5", "strip1:DIN", "green", [ "v0" ] ],
+    [ "btn_up:1.l", "esp:12", "green", [ "v0" ] ],
     [ "btn_up:2.l", "esp:GND.2", "black", [ "v0" ] ],
-    [ "btn_down:1.l", "esp:D14", "red", [ "v0" ] ],
+    [ "btn_down:1.l", "esp:14", "red", [ "v0" ] ],
     [ "btn_down:2.l", "esp:GND.2", "black", [ "v0" ] ],
-    [ "btn_mode:1.l", "esp:D27", "blue", [ "v0" ] ],
+    [ "btn_mode:1.l", "esp:27", "blue", [ "v0" ] ],
     [ "btn_mode:2.l", "esp:GND.2", "black", [ "v0" ] ],
     [ "pot_thr:GND", "esp:GND.2", "black", [ "v0" ] ],
     [ "pot_thr:VCC", "esp:3V3", "red", [ "v0" ] ],
-    [ "pot_thr:SIG", "esp:D34", "gold", [ "v0" ] ]
+    [ "pot_thr:SIG", "esp:34", "gold", [ "v0" ] ]
   ],
   "serialMonitor": {
     "display": "auto"
