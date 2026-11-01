@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "author": "Formula SAE Digital Dashboard",
+  "author": "Formula SAE Digital Dashboard (STM32 Nucleo-G431KB)",
   "editor": "wokwi",
   "parts": [
     {
-      "type": "board-esp32-devkit-c-v4",
-      "id": "esp",
-      "top": 80,
-      "left": -170,
+      "type": "board-st-nucleo-c031c6",
+      "id": "nucleo",
+      "top": 70,
+      "left": -180,
       "attrs": {}
     },
     {
@@ -29,52 +29,50 @@
       "id": "btn_up",
       "top": 420,
       "left": 150,
-      "attrs": { "color": "green", "label": "SHIFT UP" }
+      "attrs": { "color": "green", "label": "SHIFT UP (D4)" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btn_down",
       "top": 420,
       "left": 250,
-      "attrs": { "color": "red", "label": "SHIFT DOWN" }
+      "attrs": { "color": "red", "label": "SHIFT DOWN (D5)" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id": "btn_mode",
+      "id": "btn_refill",
       "top": 420,
       "left": 350,
-      "attrs": { "color": "blue", "label": "AUTO / MAN" }
+      "attrs": { "color": "blue", "label": "REFILL AIR 50x (D7)" }
     },
     {
       "type": "wokwi-potentiometer",
       "id": "pot_thr",
       "top": 410,
-      "left": 460,
+      "left": 470,
       "attrs": { "value": "512" }
     }
   ],
   "connections": [
-    [ "esp:3V3", "lcd1:VCC", "red", [ "v0" ] ],
-    [ "esp:GND.1", "lcd1:GND", "black", [ "v0" ] ],
-    [ "esp:15", "lcd1:CS", "yellow", [ "h0" ] ],
-    [ "esp:4", "lcd1:RST", "gray", [ "h0" ] ],
-    [ "esp:2", "lcd1:D/C", "orange", [ "h0" ] ],
-    [ "esp:23", "lcd1:MOSI", "blue", [ "h0" ] ],
-    [ "esp:18", "lcd1:SCK", "green", [ "h0" ] ],
-    [ "esp:3V3", "lcd1:LED", "red", [ "v0" ] ],
-    [ "esp:19", "lcd1:MISO", "purple", [ "h0" ] ],
-    [ "esp:GND.1", "strip1:VSS", "black", [ "v0" ] ],
-    [ "esp:5V", "strip1:VDD", "red", [ "v0" ] ],
-    [ "esp:5", "strip1:DIN", "green", [ "v0" ] ],
-    [ "btn_up:1.l", "esp:12", "green", [ "v0" ] ],
-    [ "btn_up:2.l", "esp:GND.2", "black", [ "v0" ] ],
-    [ "btn_down:1.l", "esp:14", "red", [ "v0" ] ],
-    [ "btn_down:2.l", "esp:GND.2", "black", [ "v0" ] ],
-    [ "btn_mode:1.l", "esp:27", "blue", [ "v0" ] ],
-    [ "btn_mode:2.l", "esp:GND.2", "black", [ "v0" ] ],
-    [ "pot_thr:GND", "esp:GND.2", "black", [ "v0" ] ],
-    [ "pot_thr:VCC", "esp:3V3", "red", [ "v0" ] ],
-    [ "pot_thr:SIG", "esp:34", "gold", [ "v0" ] ]
+    [ "nucleo:3V3", "lcd1:VCC", "red", [ "v0" ] ],
+    [ "nucleo:GND.1", "lcd1:GND", "black", [ "v0" ] ],
+    [ "nucleo:D3", "lcd1:CS", "yellow", [ "h0" ] ],
+    [ "nucleo:D2", "lcd1:D/C", "orange", [ "h0" ] ],
+    [ "nucleo:D11", "lcd1:MOSI", "blue", [ "h0" ] ],
+    [ "nucleo:D13", "lcd1:SCK", "green", [ "h0" ] ],
+    [ "nucleo:3V3", "lcd1:LED", "red", [ "v0" ] ],
+    [ "nucleo:GND.1", "strip1:VSS", "black", [ "v0" ] ],
+    [ "nucleo:5V", "strip1:VDD", "red", [ "v0" ] ],
+    [ "nucleo:D6", "strip1:DIN", "green", [ "v0" ] ],
+    [ "btn_up:1.l", "nucleo:D4", "green", [ "v0" ] ],
+    [ "btn_up:2.l", "nucleo:GND.2", "black", [ "v0" ] ],
+    [ "btn_down:1.l", "nucleo:D5", "red", [ "v0" ] ],
+    [ "btn_down:2.l", "nucleo:GND.2", "black", [ "v0" ] ],
+    [ "btn_refill:1.l", "nucleo:D7", "blue", [ "v0" ] ],
+    [ "btn_refill:2.l", "nucleo:GND.2", "black", [ "v0" ] ],
+    [ "pot_thr:GND", "nucleo:GND.2", "black", [ "v0" ] ],
+    [ "pot_thr:VCC", "nucleo:3V3", "red", [ "v0" ] ],
+    [ "pot_thr:SIG", "nucleo:A0", "gold", [ "v0" ] ]
   ],
   "serialMonitor": {
     "display": "auto"
