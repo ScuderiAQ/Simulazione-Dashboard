@@ -35,7 +35,8 @@ Il layout rispetta fedelmente la disposizione e gli elementi della bozza fornita
 | **Shift UP** | `D4` | `PB7` | Pulsante Marcia UP (Active LOW, pull-up int.) |
 | **Shift DOWN** | `D5` | `PB6` | Pulsante Marcia DOWN (Active LOW, pull-up int.)|
 | **REFILL Aria (50x)**| `D7` | `PC14` | Pulsante Ricarica Bombola Aria Compressa |
-| **Acceleratore (Pot)**| `A0` | `PA0` | Potenziometro Gas (Ingresso Analogico ADC) |
+| **Acceleratore (Pot)**| `A0` | `PA0` | Potenziometro Gas THR (Ingresso Analogico ADC) |
+| **Freno (Pot)**| `A1` | `PA1` | Potenziometro Freno BRK (Ingresso Analogico ADC) |
 
 ---
 

@@ -50,7 +50,28 @@
       "id": "pot_thr",
       "top": 410,
       "left": 470,
-      "attrs": { "value": "512" }
+      "attrs": { "value": "460" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_thr",
+      "top": 515,
+      "left": 470,
+      "attrs": { "text": "THR (A0)" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot_brk",
+      "top": 410,
+      "left": 580,
+      "attrs": { "value": "0" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_brk",
+      "top": 515,
+      "left": 580,
+      "attrs": { "text": "BRK (A1)" }
     }
   ],
   "connections": [
@@ -72,7 +93,10 @@
     [ "btn_refill:2.l", "nucleo:GND.2", "black", [ "v0" ] ],
     [ "pot_thr:GND", "nucleo:GND.2", "black", [ "v0" ] ],
     [ "pot_thr:VCC", "nucleo:3V3", "red", [ "v0" ] ],
-    [ "pot_thr:SIG", "nucleo:A0", "gold", [ "v0" ] ]
+    [ "pot_thr:SIG", "nucleo:A0", "gold", [ "v0" ] ],
+    [ "pot_brk:GND", "nucleo:GND.2", "black", [ "v0" ] ],
+    [ "pot_brk:VCC", "nucleo:3V3", "red", [ "v0" ] ],
+    [ "pot_brk:SIG", "nucleo:A1", "orange", [ "v0" ] ]
   ],
   "serialMonitor": {
     "display": "auto"

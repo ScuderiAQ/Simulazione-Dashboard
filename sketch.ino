@@ -13,20 +13,22 @@
  *       TFT_SCK  -> D13 (PB3, Hardware SPI1 SCK)
  *       TFT_VCC  -> 3.3V, TFT_LED -> 3.3V, TFT_GND -> GND
  *   - Inputs (Full Manual Control):
- *       BTN_UP     -> D4 (PB7, Shift UP - Active LOW, pull-up)
- *       BTN_DOWN   -> D5 (PB6, Shift DOWN - Active LOW, pull-up)
- *       BTN_REFILL -> D7 (PC14, Ricarica Aria 50 Shifts - Active LOW, pull-up)
- *       POT_PIN    -> A0 (PA0, Throttle Potentiometer)
+ *       BTN_UP      -> D4 (PB7, Shift UP - Active LOW, pull-up)
+ *       BTN_DOWN    -> D5 (PB6, Shift DOWN - Active LOW, pull-up)
+ *       BTN_REFILL  -> D7 (PC14, Ricarica Aria 50 Shifts - Active LOW, pull-up)
+ *       POT_THR_PIN -> A0 (PA0, Throttle Potentiometer)
+ *       POT_BRK_PIN -> A1 (PA1, Brake Potentiometer)
  * ============================================================================
  */
 
 // ---------------- Pins Definitions ----------------
-#define TFT_DC      2   // D2
-#define TFT_CS      3   // D3
-#define BTN_UP      4   // D4
-#define BTN_DOWN    5   // D5
-#define BTN_REFILL  7   // D7 (Refill Air)
-#define POT_PIN    A0   // A0
+#define TFT_DC       2   // D2
+#define TFT_CS       3   // D3
+#define BTN_UP       4   // D4
+#define BTN_DOWN     5   // D5
+#define BTN_REFILL   7   // D7 (Refill Air)
+#define POT_THR_PIN A0   // A0 (Throttle)
+#define POT_BRK_PIN A1   // A1 (Brake)
 
 // ---------------- Color Palette ----------------
 #define COLOR_BG        ILI9341_BLACK
@@ -86,7 +88,8 @@ void setup() {
   pinMode(BTN_UP, INPUT_PULLUP);
   pinMode(BTN_DOWN, INPUT_PULLUP);
   pinMode(BTN_REFILL, INPUT_PULLUP);
-  pinMode(POT_PIN, INPUT);
+  pinMode(POT_THR_PIN, INPUT);
+  pinMode(POT_BRK_PIN, INPUT);
 
   // Initialize display
   tft.begin();
@@ -404,22 +407,27 @@ void handleInputs() {
   unsigned long now = millis();
 
   // 1. Read Potentiometer for Throttle (0 to 100%)
-  int potVal = analogRead(POT_PIN);
-  if (potVal > 1023) potVal = potVal >> 2; // Normalize 12-bit (0-4095) down to 10-bit if needed
-  currentTelemetry.throttle = (constrain(potVal, 0, 1023) * 100) / 1023;
+  int potThr = analogRead(POT_THR_PIN);
+  if (potThr > 1023) potThr = potThr >> 2; // Normalize 12-bit to 10-bit
+  currentTelemetry.throttle = (constrain(potThr, 0, 1023) * 100) / 1023;
 
-  // Brake is 0 in normal throttle drive, or simulates trail-braking if throttle is closed
-  currentTelemetry.brake = (currentTelemetry.throttle == 0) ? 10 : 0;
+  // 2. Read Potentiometer for Brake (0 to 100%)
+  int potBrk = analogRead(POT_BRK_PIN);
+  if (potBrk > 1023) potBrk = potBrk >> 2; // Normalize 12-bit to 10-bit
+  currentTelemetry.brake = (constrain(potBrk, 0, 1023) * 100) / 1023;
 
-  // Calculate RPM and Speed according to current Gear
+  // Calculate RPM and Speed according to current Gear and Pedals
   if (currentTelemetry.gear == 0) {
     // Neutral revving
     currentTelemetry.rpm = 2000 + ((currentTelemetry.throttle * 10000) / 100);
     currentTelemetry.speed = 0;
   } else {
-    // In Gear driving
+    // In Gear driving: brake opposes throttle
+    int effectiveThrottle = currentTelemetry.throttle - currentTelemetry.brake;
+    if (effectiveThrottle < 0) effectiveThrottle = 0;
+
     int maxSpd = currentTelemetry.gear * 24 + 10;
-    currentTelemetry.rpm = 3000 + ((currentTelemetry.throttle * 9000) / 100);
+    currentTelemetry.rpm = 3000 + ((effectiveThrottle * 9000) / 100);
     currentTelemetry.speed = (8 * currentTelemetry.gear) + (((currentTelemetry.rpm - 3000) * (maxSpd - (8 * currentTelemetry.gear))) / 9000);
   }
 
