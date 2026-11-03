@@ -57,6 +57,8 @@ Per garantire che la compilazione rientri perfettamente nei limiti di memoria de
 
 ## 🛠️ Come Simulare su Wokwi Online
 
+Link diretto al progetto: https://wokwi.com/projects/479677486504552449
+
 1. Apri il simulatore **STM32 Nucleo-L031K6** su Wokwi:
    👉 **[https://wokwi.com/projects/new/st-nucleo-l031k6](https://wokwi.com/projects/new/st-nucleo-l031k6)**
 2. Assicurati che **`libraries.txt`** contenga:
