@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "author": "Formula SAE Digital Dashboard (STM32 Nucleo-G431KB)",
+  "author": "Formula SAE Digital Dashboard (STM32 Nucleo-L031K6)",
   "editor": "wokwi",
   "parts": [
     {
-      "type": "board-st-nucleo-c031c6",
+      "type": "board-st-nucleo-l031k6",
       "id": "nucleo",
       "top": 70,
-      "left": -180,
+      "left": -120,
       "attrs": {}
     },
     {

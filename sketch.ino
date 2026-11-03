@@ -3,12 +3,13 @@
 #include <Adafruit_ILI9341.h>
 
 /* ============================================================================
- * FORMULA SAE DASHBOARD - STM32 NUCLEO-G431KB & ILI9341 SPI TFT
+ * FORMULA SAE DASHBOARD - STM32 NUCLEO-L031K6 (Nucleo-32) & ILI9341 SPI TFT
+ * Compatible with STM32 NUCLEO-G431KB (same Nucleo-32 pinout)
  * ============================================================================
  * Pinout:
  *   - TFT Display:
  *       TFT_CS   -> D3 (PB0)
- *       TFT_DC   -> D2 (PA10)
+ *       TFT_DC   -> D2 (PA12 on L031K6 / PA10 on G431KB)
  *       TFT_MOSI -> D11 (PB5, Hardware SPI1 MOSI)
  *       TFT_SCK  -> D13 (PB3, Hardware SPI1 SCK)
  *       TFT_VCC  -> 3.3V, TFT_LED -> 3.3V, TFT_GND -> GND
